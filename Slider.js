@@ -117,6 +117,7 @@ var Slider = React.createClass({
       containerSize: {},
       trackSize: {},
       thumbSize: {},
+      thumbAnnotationSize: {},
       previousLeft: 0,
       value: this.props.value,
     };
@@ -156,11 +157,13 @@ var Slider = React.createClass({
       trackStyle,
       thumbStyle,
       debugTouchArea,
+      thumbAnnotation,
       ...other
     } = this.props;
-    var {value, containerSize, trackSize, thumbSize} = this.state;
+    var {value, containerSize, trackSize, thumbSize, thumbAnnotationSize} = this.state;
     var mainStyles = styles || defaultStyles;
     var thumbLeft = this._getThumbLeft(value);
+    var thumbAnnotationLeft = thumbLeft + ((thumbSize.width - thumbAnnotationSize.width) / 2);
     var valueVisibleStyle = {};
     if (containerSize.width === undefined
         || trackSize.width === undefined
@@ -184,6 +187,11 @@ var Slider = React.createClass({
 
     return (
       <View {...other} style={[mainStyles.container, style]} onLayout={this._measureContainer}>
+        <View style={[mainStyles.thumbAnnotation,
+                     {marginTop: -thumbAnnotationSize.height, left: thumbAnnotationLeft}]}
+              onLayout={this._measureThumbAnnotation}>
+          {thumbAnnotation}
+        </View>
         <View
           style={[{backgroundColor: maximumTrackTintColor}, mainStyles.track, trackStyle]}
           onLayout={this._measureTrack} />
@@ -244,6 +252,12 @@ var Slider = React.createClass({
     var {width, height} = x.nativeEvent.layout;
     var thumbSize = {width: width, height: height};
     this.setState({ thumbSize: thumbSize });
+  },
+
+  _measureThumbAnnotation(x: Object) {
+    var {width, height} = x.nativeEvent.layout;
+    var thumbAnnotationSize = {width: width, height: height};
+    this.setState({ thumbAnnotationSize: thumbAnnotationSize });
   },
 
   _getRatio(value: number) {
@@ -359,6 +373,9 @@ var defaultStyles = StyleSheet.create({
     width: THUMB_SIZE,
     height: THUMB_SIZE,
     borderRadius: THUMB_SIZE / 2,
+  },
+  thumbAnnotation: {
+    position: 'absolute',
   },
   touchArea: {
     position: 'absolute',
